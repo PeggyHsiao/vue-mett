@@ -2,6 +2,7 @@
   <div>
     <h2>MQTT Connector</h2>
 
+    <!-- Settings Connection -->
     <p>Host</p>
     <input
       v-model="connection.host"
@@ -41,6 +42,7 @@
       Connect
     </button>
 
+    <!-- Subsscriber / Unsubscriber -->
     <h3>Subscriber</h3>
     <p>Topic</p>
     <input
@@ -73,6 +75,38 @@
     </button>
     <span>{{ `status:${subscribeSuccess}` }}</span>
 
+    <!-- Publish -->
+    <h3>Publish</h3>
+    <p>Topic</p>
+    <input
+      v-model="publish.topic"
+      type="text"
+    >
+
+    <p>Qos</p>
+    <select v-model="publish.qos">
+      <option
+        v-for="item in qosList"
+        :key="item"
+        :value="item"
+      >
+        {{ item }}
+      </option>
+    </select>
+
+    <p>Send Message</p>
+    <input
+      v-model="publish.msg"
+      type="text"
+    >
+    <br>
+
+    <button
+      @click="clickPublish"
+    >
+      Publish
+    </button>
+
     <h3>Respons Message</h3>
     <textarea
       v-model="responseMsg"
@@ -101,6 +135,11 @@ export default {
       subscriber: {
         topic: '',
         qos: 0,
+      },
+      publish: {
+        topic: '',
+        qos: 0,
+        msg: 'Hello World',
       },
       responseMsg: '',
       qosList: [0, 1, 2],
@@ -140,6 +179,15 @@ export default {
           return;
         }
         this.subscribeSuccess = false;
+      });
+    },
+    clickPublish() {
+      const { topic, qos, msg } = this.publish;
+
+      this.client.publish(topic, msg, qos, (error) => {
+        if (error) {
+          console.log(error);
+        }
       });
     },
   },
