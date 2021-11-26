@@ -41,6 +41,12 @@
     >
       Connect
     </button>
+    <button
+      v-if="client.connected"
+      @click="disconnection"
+    >
+      Disconnect
+    </button>
 
     <!-- Subsscriber / Unsubscriber -->
     <h3>Subscriber</h3>
@@ -189,6 +195,10 @@ export default {
           console.log(error);
         }
       });
+    },
+    disconnection() {
+      this.client.end();
+      this.client = { connected: false };
     },
   },
 };
