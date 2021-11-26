@@ -40,6 +40,45 @@
     >
       Connect
     </button>
+
+    <h3>Subscriber</h3>
+    <p>Topic</p>
+    <input
+      v-model="subscriber.topic"
+      type="text"
+    >
+
+    <p>Qos</p>
+    <select v-model="subscriber.qos">
+      <option
+        v-for="item in qosList"
+        :key="item"
+        :value="item"
+      >
+        {{ item }}
+      </option>
+    </select>
+    <br>
+
+    <button
+      @click="clickSubscriber"
+    >
+      Subscriber
+    </button>
+    <button
+      v-if="subscribeSuccess"
+      @click="clickUnsubscriber"
+    >
+      Unsubscriber
+    </button>
+    <span>{{ `status:${subscribeSuccess}` }}</span>
+
+    <h3>Respons Message</h3>
+    <textarea
+      v-model="responseMsg"
+      cols="30"
+      rows="10"
+    />
   </div>
 </template>
 
@@ -59,6 +98,13 @@ export default {
       client: {
         connected: false,
       },
+      subscriber: {
+        topic: '',
+        qos: 0,
+      },
+      responseMsg: '',
+      qosList: [0, 1, 2],
+      subscribeSuccess: false,
     };
   },
   methods: {
@@ -69,9 +115,32 @@ export default {
       const connectUrl = `ws://${host}:${port}`;
 
       this.client = mqtt.connect(connectUrl, options);
+
+      this.client.on('message', (topic, message) => {
+        this.responseMsg = this.responseMsg.concat(message);
+      });
     },
     clickSubscriber() {
+      const { topic, qos } = this.subscriber;
 
+      this.client.subscribe(topic, { qos }, (error) => {
+        if (error) {
+          console.log(error);
+          return;
+        }
+        this.subscribeSuccess = true;
+      });
+    },
+    clickUnsubscriber() {
+      const { topic } = this.subscriber;
+
+      this.client.unsubscribe(topic, (error) => {
+        if (error) {
+          console.log(error);
+          return;
+        }
+        this.subscribeSuccess = false;
+      });
     },
   },
 };
